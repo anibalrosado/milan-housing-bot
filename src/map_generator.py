@@ -72,14 +72,17 @@ class MapGenerator:
             if not url:
                 continue
 
-            # Geocode via cache then Nominatim
             neighborhood = row.get(_SHEET_COLS["neighborhood"], "Milan")
-            address = neighborhood
             listing_hash = _url_hash(url)
-            try:
-                lat, lng = self.geocoder.geocode(listing_hash, address, neighborhood)
-            except Exception:
-                lat, lng = self.config.get("cattolica_lat", 45.4625), self.config.get("cattolica_lng", 9.1801)
+            if neighborhood == "Milan":
+                lat = self.config.get("cattolica_lat", 45.4625)
+                lng = self.config.get("cattolica_lng", 9.1801)
+            else:
+                try:
+                    lat, lng = self.geocoder.geocode(listing_hash, neighborhood, neighborhood)
+                except Exception:
+                    lat = self.config.get("cattolica_lat", 45.4625)
+                    lng = self.config.get("cattolica_lng", 9.1801)
 
             price_raw = row.get(_SHEET_COLS["price"], "")
             try:
