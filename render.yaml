@@ -4,7 +4,7 @@ services:
     runtime: python
     plan: free
     schedule: "0 * * * *"   # top of every hour
-    buildCommand: pip install -r requirements.txt && playwright install chromium --with-deps
+    buildCommand: pip install -r requirements.txt && playwright install-deps chromium && playwright install chromium
     startCommand: python main.py
     envVars:
       # Paste the full service-account JSON as a single-line string
