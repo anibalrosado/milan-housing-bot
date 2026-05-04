@@ -1,4 +1,15 @@
 services:
+  # ── Static map site (auto-deploys whenever cron pushes map.html to GitHub) ──
+  - type: web
+    name: milan-housing-map
+    runtime: static
+    staticPublishPath: ./public
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache, no-store, must-revalidate
+
+  # ── Hourly scrape cron ────────────────────────────────────────────────────────
   - type: cron
     name: milan-housing-bot
     runtime: python
@@ -6,12 +17,38 @@ services:
     schedule: "0 * * * *"   # top of every hour
     buildCommand: pip install -r requirements.txt && PLAYWRIGHT_BROWSERS_PATH=/opt/render/project/src/.browsers playwright install chromium
     startCommand: python main.py
+    envVars:
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: /opt/render/project/src/.browsers
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: NOTIFY_EMAILS
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: "anibalrosado/milan-housing-bot"
+      - key: RENDER_MAP_URL
+        value: "https://milan-housing-map.onrender.com/map.html"
+      - key: USE_GOOGLE_GEOCODING
+        value: "false"
+      - key: USE_DISTANCE_MATRIX_API
+        value: "false"
+      - key: GOOGLE_MAPS_API_KEY
+        value: ""
 
+  # ── Daily recap email (2 AM UTC = 9 PM EDT) ───────────────────────────────────
   - type: cron
     name: milan-housing-bot-recap
     runtime: python
     plan: starter
-    schedule: "0 2 * * *"   # 2 AM UTC = 9 PM EST
+    schedule: "0 2 * * *"
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py --recap
     envVars:
@@ -28,35 +65,4 @@ services:
       - key: GITHUB_REPO
         value: "anibalrosado/milan-housing-bot"
       - key: RENDER_MAP_URL
-        value: "https://anibalrosado.github.io/milan-housing-bot/map.html"
-    envVars:
-      - key: PLAYWRIGHT_BROWSERS_PATH
-        value: /opt/render/project/src/.browsers
-      # Paste the full service-account JSON as a single-line string
-      - key: GOOGLE_SERVICE_ACCOUNT_JSON
-        sync: false
-      - key: GOOGLE_SHEET_ID
-        sync: false
-      - key: GMAIL_USER
-        sync: false
-      - key: GMAIL_APP_PASSWORD
-        sync: false
-      - key: NOTIFY_EMAILS
-        sync: false
-      # GitHub token for pushing map.html to GitHub Pages after each run
-      # Create at: github.com → Settings → Developer settings → Personal access tokens
-      # Scopes needed: repo (Contents: write)
-      - key: GITHUB_TOKEN
-        sync: false
-      # Your GitHub repo in "owner/repo" format
-      - key: GITHUB_REPO
-        value: "anibalrosado/milan-housing-bot"
-      # Set to https://anibalrosado.github.io/milan-housing-bot/map.html once Pages is live
-      - key: RENDER_MAP_URL
-        value: "https://anibalrosado.github.io/milan-housing-bot/map.html"
-      - key: USE_GOOGLE_GEOCODING
-        value: "false"
-      - key: USE_DISTANCE_MATRIX_API
-        value: "false"
-      - key: GOOGLE_MAPS_API_KEY
-        value: ""
+        value: "https://milan-housing-map.onrender.com/map.html"
