@@ -1,0 +1,46 @@
+# Environment
+.env
+*.env
+
+# Credentials
+*.json
+!.env.example
+
+# Database
+listings.db
+
+# Logs
+logs/*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Debug/scratch files from development
+discover_dom*.py
+*_debug*.png
+*_payload_dump.json
+spotahome_*.png
+uniplaces_*.png
+page_dump.html
+
+# Old public/ output (now uses docs/ for GitHub Pages)
+public/

@@ -1,0 +1,114 @@
+# ── Search dates ──────────────────────────────────────────────────────────────
+search:
+  move_in: "2026-09-01"
+  move_out: "2026-12-15"
+
+# ── Listing filters ───────────────────────────────────────────────────────────
+filters:
+  # Drop listings whose available_from date is after move_out (can't live there)
+  exclude_unavailable_after_moveout: true
+  # Drop listings where no target neighborhood was detected in the text.
+  # Set to false if you want to see all Milan listings regardless of location.
+  require_known_neighborhood: true
+
+# ── Budget (USD, converted to EUR at runtime) ──────────────────────────────────
+budget:
+  group_usd_total: 6500      # 5-person apartment
+  couple_usd_total: 2400     # 1-bedroom for 2
+
+# ── Bedroom filters ───────────────────────────────────────────────────────────
+bedrooms:
+  group: [4, 5]
+  couple: [1]
+
+# ── Target neighborhoods ───────────────────────────────────────────────────────
+neighborhoods:
+  - Porta Ticinese
+  - San Vincenzo
+  - Sant'Ambrogio
+  - Missori
+  - Duomo
+  - Solari
+  - San Lorenzo
+  - Vetra
+  - Washington
+  - Via Lanzone
+
+# ── Walk time to Università Cattolica (minutes, fallback approximations) ───────
+cattolica_address: "Largo Gemelli 1, Milan, Italy"
+cattolica_lat: 45.4625
+cattolica_lng: 9.1801
+walk_times:
+  "Sant'Ambrogio": 2
+  "Via Lanzone": 5
+  "Missori": 10
+  "Vetra": 10
+  "Duomo": 12
+  "Porta Ticinese": 15
+  "San Lorenzo": 15
+  "Solari": 20
+  "San Vincenzo": 22
+  "Washington": 25
+
+# ── Neighborhood centroid coordinates (geocoding fallback) ─────────────────────
+neighborhood_centroids:
+  "Porta Ticinese":  {lat: 45.4505, lng: 9.1797}
+  "San Vincenzo":    {lat: 45.4575, lng: 9.1735}
+  "Sant'Ambrogio":   {lat: 45.4626, lng: 9.1731}
+  "Missori":         {lat: 45.4604, lng: 9.1881}
+  "Duomo":           {lat: 45.4642, lng: 9.1900}
+  "Solari":          {lat: 45.4567, lng: 9.1645}
+  "San Lorenzo":     {lat: 45.4581, lng: 9.1815}
+  "Vetra":           {lat: 45.4592, lng: 9.1839}
+  "Washington":      {lat: 45.4665, lng: 9.1538}
+  "Via Lanzone":     {lat: 45.4634, lng: 9.1782}
+
+# ── FX API ────────────────────────────────────────────────────────────────────
+fx_api_url: "https://api.frankfurter.app/latest?from=USD&to=EUR"
+
+# ── Listing lifecycle ─────────────────────────────────────────────────────────
+# Number of consecutive missed runs before a listing is marked Removed
+removed_miss_threshold: 3
+
+# ── Geocoding ────────────────────────────────────────────────────────────────
+geocoding:
+  # Nominatim rate limit: max 1 request/second
+  nominatim_user_agent: "milan-housing-bot/1.0 (contact: your@email.com)"
+  nominatim_url: "https://nominatim.openstreetmap.org/search"
+  # Set USE_GOOGLE_GEOCODING=true in env to use Google Maps Geocoding API instead
+  request_delay_seconds: 1.1
+
+# ── Map generation ────────────────────────────────────────────────────────────
+map:
+  output_path: "docs/map.html"
+  # Leaflet tile providers (first is preferred, fallback in order)
+  tile_url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+  tile_attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"
+  # Statuses never shown on map regardless of filters
+  hidden_statuses: ["Passed"]
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+log_file: "logs/bot.log"
+log_max_bytes: 5242880   # 5 MB
+log_backup_count: 3
+
+# ── Sheets ────────────────────────────────────────────────────────────────────
+sheet_columns:
+  - Date Found
+  - Source
+  - Search Type
+  - Title
+  - Neighborhood
+  - Walk to Cattolica (min)
+  - Price (€/month)
+  - Bedrooms
+  - Furnished
+  - Available From
+  - Contact Name
+  - Email
+  - Phone
+  - Listing URL
+  - Status
+  - Notes
+  - Listing Status
+  - Removed Date
