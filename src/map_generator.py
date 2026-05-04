@@ -33,8 +33,8 @@ _SHEET_COLS = {
     "title":         "Title",
     "neighborhood":  "Neighborhood",
     "walk":          "Walk to Cattolica (min)",
-    "price":         "Price (€/month)",
-    "per_person":    "Per Person (€/mo)",
+    "price":         "Price ($/month)",
+    "per_person":    "Per Person ($/mo)",
     "bedrooms":      "Bedrooms",
     "furnished":     "Furnished",
     "available":     "Available From",
@@ -442,8 +442,8 @@ function renderAll() {{
 // ── Build list item DOM ───────────────────────────────────────────────────────
 function buildListItem(l, idx) {{
   const bar   = l.search_type === 'Group of 5' ? '#3b82f6' : '#ec4899';
-  const price     = l.price      ? `€${{Number(l.price).toLocaleString()}}/mo` : '—';
-  const perPerson = l.per_person ? ` · €${{Number(l.per_person).toLocaleString()}}/pp` : '';
+  const price     = l.price      ? `$${{Number(l.price).toLocaleString()}}/mo` : '—';
+  const perPerson = l.per_person ? ` · $${{Number(l.per_person).toLocaleString()}}/pp` : '';
   const walk  = l.walk  ? `🚶 ${{l.walk}} min` : '';
   const beds  = l.bedrooms ? `${{l.bedrooms}}BR` : '';
   const ls    = (l.listing_status || '').toLowerCase();
@@ -517,8 +517,8 @@ function openPopup(l) {{
   else if (st === 'contacted') badges.innerHTML += '<span class="pbadge pbadge-contacted">Contacted</span>';
   else                         badges.innerHTML += '<span class="pbadge pbadge-active">Active</span>';
 
-  const price     = l.price      ? `€${{Number(l.price).toLocaleString()}}/mo` : '—';
-  const perPerson = l.per_person ? `€${{Number(l.per_person).toLocaleString()}}/mo per person` : '';
+  const price     = l.price      ? `$${{Number(l.price).toLocaleString()}}/mo` : '—';
+  const perPerson = l.per_person ? `$${{Number(l.per_person).toLocaleString()}}/mo per person` : '';
   const walk  = l.walk  ? `${{l.walk}} min walk to Cattolica` : '';
   const beds  = l.bedrooms ? `${{l.bedrooms}} bedroom(s)` : '';
   const furn  = (l.furnished === true  || l.furnished === 'TRUE')  ? 'Furnished'   :

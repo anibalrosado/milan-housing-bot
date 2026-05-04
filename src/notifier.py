@@ -54,6 +54,7 @@ class EmailNotifier:
         sheet_url: str,
         map_url: str,
         run_timestamp: str,
+        eur_to_usd: float = 1.0,
     ) -> None:
         """Alert email — only fires when new or removed listings exist."""
         if not new_listings and not removed_listings:
@@ -61,8 +62,8 @@ class EmailNotifier:
             return
         self._send_message(
             subject=_build_subject(new_listings, removed_listings),
-            html_body=_build_alert_html(new_listings, removed_listings, sheet_url, map_url, run_timestamp),
-            text_body=_build_alert_text(new_listings, removed_listings, sheet_url, map_url, run_timestamp),
+            html_body=_build_alert_html(new_listings, removed_listings, sheet_url, map_url, run_timestamp, eur_to_usd),
+            text_body=_build_alert_text(new_listings, removed_listings, sheet_url, map_url, run_timestamp, eur_to_usd),
         )
         logger.info(
             "Notifier: alert email sent — %d new, %d removed",
@@ -167,6 +168,7 @@ def _build_alert_html(
     sheet_url: str,
     map_url: str,
     run_timestamp: str,
+    eur_to_usd: float = 1.0,
 ) -> str:
     parts = [_html_open("Milan Housing Bot — New Alert"), _html_map_banner(map_url)]
 
@@ -182,11 +184,12 @@ def _build_alert_html(
                 "<th>Per Person</th><th>Neighborhood</th><th>Walk</th><th>Source</th></tr>"
             )
             for l in items:
-                price_str = f"€{l.price_eur:.0f}" if l.price_eur else "—"
-                pp = l.per_person_eur()
-                pp_str = f"€{pp:.0f}" if pp else "—"
-                beds_str = str(l.bedrooms) if l.bedrooms else "?"
-                walk_str = f"{l.walk_minutes} min" if l.walk_minutes else "—"
+                usd = l.price_usd(eur_to_usd)
+                pp  = l.per_person_usd(eur_to_usd)
+                price_str = f"${usd:.0f}" if usd else "—"
+                pp_str    = f"${pp:.0f}" if pp else "—"
+                beds_str  = str(l.bedrooms) if l.bedrooms else "?"
+                walk_str  = f"{l.walk_minutes} min" if l.walk_minutes else "—"
                 title_link = f'<a href="{l.url}">{_esc(l.title[:60])}</a>'
                 parts.append(
                     f"<tr><td>{title_link}</td><td>{beds_str}</td>"
@@ -222,6 +225,7 @@ def _build_alert_text(
     sheet_url: str,
     map_url: str,
     run_timestamp: str,
+    eur_to_usd: float = 1.0,
 ) -> str:
     lines = ["Milan Housing Bot — New Alert", "=" * 40, ""]
     if map_url:
@@ -231,12 +235,13 @@ def _build_alert_text(
         lines.append(f"NEW LISTINGS ({len(new_listings)})")
         lines.append("-" * 30)
         for l in new_listings:
-            pp = l.per_person_eur()
-            price_str = f"€{l.price_eur:.0f}/mo" if l.price_eur else "N/A"
-            pp_str = f"€{pp:.0f}/pp" if pp else ""
-            beds_str = f"{l.bedrooms}BR" if l.bedrooms else "?BR"
+            usd = l.price_usd(eur_to_usd)
+            pp  = l.per_person_usd(eur_to_usd)
+            price_str = f"${usd:.0f}/mo" if usd else "N/A"
+            pp_str    = f" · ${pp:.0f}/pp" if pp else ""
+            beds_str  = f"{l.bedrooms}BR" if l.bedrooms else "?BR"
             lines.append(f"[{l.search_type}] {l.title[:60]}")
-            lines.append(f"  {beds_str} | {price_str} {pp_str} | {l.neighborhood} | {l.source}")
+            lines.append(f"  {beds_str} | {price_str}{pp_str} | {l.neighborhood} | {l.source}")
             lines.append(f"  {l.url}")
             lines.append("")
 
@@ -279,14 +284,14 @@ def _build_recap_html(
             url   = row.get("Listing URL", "")
             title_cell = f'<a href="{url}">{title}</a>' if url else title
 
-            price_raw = row.get("Price (€/month)", "")
-            pp_raw    = row.get("Per Person (€/mo)", "")
+            price_raw = row.get("Price ($/month)", "")
+            pp_raw    = row.get("Per Person ($/mo)", "")
             try:
-                price_str = f"€{float(str(price_raw).replace(',','')):.0f}" if price_raw else "—"
+                price_str = f"${float(str(price_raw).replace(',','')):.0f}" if price_raw else "—"
             except ValueError:
                 price_str = _esc(str(price_raw))
             try:
-                pp_str = f"€{float(str(pp_raw).replace(',','')):.0f}" if pp_raw else "—"
+                pp_str = f"${float(str(pp_raw).replace(',','')):.0f}" if pp_raw else "—"
             except ValueError:
                 pp_str = _esc(str(pp_raw))
 
@@ -328,10 +333,10 @@ def _build_recap_text(
         lines.append(f"{search_type} ({len(items)})")
         lines.append("-" * 30)
         for row in items:
-            price = row.get("Price (€/month)", "")
-            pp    = row.get("Per Person (€/mo)", "")
-            price_str = f"€{price}/mo" if price else "N/A"
-            pp_str    = f" · €{pp}/pp" if pp else ""
+            price = row.get("Price ($/month)", "")
+            pp    = row.get("Per Person ($/mo)", "")
+            price_str = f"${price}/mo" if price else "N/A"
+            pp_str    = f" · ${pp}/pp" if pp else ""
             beds = row.get("Bedrooms", "?")
             walk = row.get("Walk to Cattolica (min)", "")
             walk_str = f"{walk} min walk" if walk else ""

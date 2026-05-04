@@ -118,12 +118,14 @@ def run() -> None:
 
     # FX conversion
     rate = fetch_usd_to_eur(config["fx_api_url"])
+    eur_to_usd = round(1 / rate, 6) if rate else 1.0
     eur_budget_group = round(config["budget"]["group_usd_total"] * rate, 2)
     eur_budget_couple = round(config["budget"]["couple_usd_total"] * rate, 2)
     logger.info(
-        "Budgets: Group ≤ €%.0f/mo | Couple ≤ €%.0f/mo",
+        "Budgets: Group ≤ €%.0f/mo | Couple ≤ €%.0f/mo  (EUR→USD rate: %.4f)",
         eur_budget_group,
         eur_budget_couple,
+        eur_to_usd,
     )
 
     # Google credentials
@@ -207,7 +209,7 @@ def run() -> None:
     reactivated = dedupe.get_reactivated(this_run_listings)
 
     if new_listings:
-        rows = [listing.to_sheet_row(date_found) for listing in new_listings]
+        rows = [listing.to_sheet_row(date_found, eur_to_usd) for listing in new_listings]
         for attempt in range(1, 4):
             try:
                 sheets_writer.append_listings(rows)
@@ -274,7 +276,7 @@ def run() -> None:
         [e.strip() for e in os.environ["NOTIFY_EMAILS"].split(",")],
     )
     try:
-        notifier.send(new_listings, removed_listings, sheet_url, map_url, run_ts)
+        notifier.send(new_listings, removed_listings, sheet_url, map_url, run_ts, eur_to_usd)
     except Exception as exc:
         logger.error("Email notification failed (non-fatal): %s", exc)
 

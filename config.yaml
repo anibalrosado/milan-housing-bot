@@ -103,8 +103,8 @@ sheet_columns:
   - Title
   - Neighborhood
   - Walk to Cattolica (min)
-  - Price (€/month)
-  - Per Person (€/mo)
+  - Price ($/month)
+  - Per Person ($/mo)
   - Bedrooms
   - Furnished
   - Available From

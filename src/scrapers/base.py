@@ -38,21 +38,35 @@ class Listing:
         raw = f"{self.source}|{self.url}"
         return hashlib.sha256(raw.encode()).hexdigest()
 
+    def price_usd(self, eur_to_usd_rate: float) -> Optional[float]:
+        if self.price_eur is None:
+            return None
+        return round(self.price_eur * eur_to_usd_rate, 2)
+
+    def per_person_usd(self, eur_to_usd_rate: float) -> Optional[float]:
+        usd = self.price_usd(eur_to_usd_rate)
+        if usd is None:
+            return None
+        divisor = 5 if self.search_type == "Group of 5" else 2
+        return round(usd / divisor, 2)
+
+    # Keep for backwards compat (used in notifier before fx_rate available)
     def per_person_eur(self) -> Optional[float]:
         if self.price_eur is None:
             return None
         divisor = 5 if self.search_type == "Group of 5" else 2
         return round(self.price_eur / divisor, 2)
 
-    def to_sheet_row(self, date_found: str) -> list:
+    def to_sheet_row(self, date_found: str, eur_to_usd_rate: float = 1.0) -> list:
         """
         Returns a list matching the sheet_columns order in config.yaml:
         Date Found | Source | Search Type | Title | Neighborhood |
-        Walk to Cattolica (min) | Price (€/month) | Per Person (€/mo) | Bedrooms | Furnished |
+        Walk to Cattolica (min) | Price ($/month) | Per Person ($/mo) | Bedrooms | Furnished |
         Available From | Contact Name | Email | Phone | Listing URL |
         Status | Notes | Listing Status | Removed Date
         """
-        pp = self.per_person_eur()
+        usd = self.price_usd(eur_to_usd_rate)
+        pp  = self.per_person_usd(eur_to_usd_rate)
         return [
             date_found,
             self.source,
@@ -60,8 +74,8 @@ class Listing:
             self.title,
             self.neighborhood,
             self.walk_minutes if self.walk_minutes is not None else "",
-            self.price_eur if self.price_eur is not None else "",
-            pp if pp is not None else "",
+            round(usd) if usd is not None else "",
+            round(pp)  if pp  is not None else "",
             self.bedrooms if self.bedrooms is not None else "",
             "Yes" if self.furnished else "No",
             self.available_from or "",
