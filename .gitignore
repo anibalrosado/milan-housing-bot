@@ -42,5 +42,4 @@ spotahome_*.png
 uniplaces_*.png
 page_dump.html
 
-# Old public/ output (now uses docs/ for GitHub Pages)
-public/
+# public/ is tracked so Render Static Site can serve map.html
