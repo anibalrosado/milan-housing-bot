@@ -10,6 +10,9 @@ filters:
   # Drop listings where no target neighborhood was detected in the text.
   # Set to false if you want to see all Milan listings regardless of location.
   require_known_neighborhood: true
+  # Drop listings whose geocoded coordinates are farther than this from Cattolica.
+  # Washington (our farthest target) is ~2.1 km away; 2.5 gives a small buffer.
+  max_distance_from_cattolica_km: 2.5
 
 # ── Budget (USD, converted to EUR at runtime) ──────────────────────────────────
 budget:

@@ -17,6 +17,7 @@ Pipeline per run:
 import json
 import logging
 import logging.handlers
+import math
 import os
 import subprocess
 import sys
@@ -181,6 +182,19 @@ def run() -> None:
             listing.listing_hash(), address, listing.neighborhood
         )
 
+    # ── Step 3b: Distance filter — drop listings geocoded too far from Cattolica ─
+    max_km = config.get("filters", {}).get("max_distance_from_cattolica_km")
+    if max_km:
+        before = len(new_listings)
+        new_listings = [
+            l for l in new_listings
+            if l.lat is None or l.lng is None or
+            _haversine_km(l.lat, l.lng, config["cattolica_lat"], config["cattolica_lng"]) <= max_km
+        ]
+        dropped = before - len(new_listings)
+        if dropped:
+            logger.info("Distance filter: dropped %d listing(s) > %.1f km from Cattolica", dropped, max_km)
+
     # ── Step 4: Write new listings to sheet ───────────────────────────────────
     removed_listings: list[dict] = []
     date_found = datetime.now().strftime("%m/%d/%Y")
@@ -290,6 +304,14 @@ def _push_map_to_github(map_path: str, run_ts: str) -> None:
         logger.info("Map pushed to GitHub Pages (%s)", repo)
     except Exception as exc:
         logger.warning("GitHub push failed (non-fatal): %s", exc)
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2
+    return R * 2 * math.asin(math.sqrt(a))
 
 
 def _git(*args: str) -> None:
