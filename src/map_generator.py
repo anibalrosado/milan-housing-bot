@@ -84,11 +84,10 @@ class MapGenerator:
                     lat = self.config.get("cattolica_lat", 45.4625)
                     lng = self.config.get("cattolica_lng", 9.1801)
 
-            price_raw = row.get(_SHEET_COLS["price"], "")
-            try:
-                price = float(str(price_raw).replace(",", "")) if price_raw else None
-            except ValueError:
-                price = None
+            price_raw      = row.get(_SHEET_COLS["price"], "")
+            per_person_raw = row.get(_SHEET_COLS["per_person"], "")
+            price      = _parse_currency(price_raw)
+            per_person = _parse_currency(per_person_raw)
 
             listings.append({
                 "title":          row.get(_SHEET_COLS["title"], "")[:80],
@@ -97,7 +96,7 @@ class MapGenerator:
                 "neighborhood":   neighborhood,
                 "walk":           row.get(_SHEET_COLS["walk"], ""),
                 "price":          price,
-                "per_person":     row.get(_SHEET_COLS["per_person"], ""),
+                "per_person":     per_person,
                 "bedrooms":       row.get(_SHEET_COLS["bedrooms"], ""),
                 "furnished":      row.get(_SHEET_COLS["furnished"], ""),
                 "available":      row.get(_SHEET_COLS["available"], ""),
@@ -132,6 +131,22 @@ class MapGenerator:
 def _url_hash(url: str) -> str:
     import hashlib
     return hashlib.sha256(url.encode()).hexdigest()[:16]
+
+
+# ── Price parser ───────────────────────────────────────────────────────────────
+
+def _parse_currency(raw) -> float | None:
+    """Parse '$4,870', '4870', 4870, etc. → float. Returns None if unparseable."""
+    if raw is None or raw == "":
+        return None
+    if isinstance(raw, (int, float)):
+        return float(raw) if raw > 0 else None
+    cleaned = str(raw).replace("$", "").replace(",", "").strip()
+    try:
+        val = float(cleaned)
+        return val if val > 0 else None
+    except ValueError:
+        return None
 
 
 # ── HTML builder ───────────────────────────────────────────────────────────────
