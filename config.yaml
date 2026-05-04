@@ -78,6 +78,19 @@ neighborhood_centroids:
   "Darsena":         {lat: 45.4524, lng: 9.1762}
   "Naviglio Grande": {lat: 45.4535, lng: 9.1730}
 
+# ── Scraper sources (set enabled: false to pause without deleting) ─────────────
+sources:
+  spotahome:       {enabled: true}
+  housinganywhere: {enabled: true}
+  uniplaces:       {enabled: true}
+  subito:          {enabled: true}
+  bakeca:          {enabled: false}   # Cloudflare-blocked; re-enable if bypass found
+  erasmusu:        {enabled: false}   # Spotahome reseller — duplicates only
+  wunderflats:     {enabled: false}   # Milan not in their market
+
+# ── Scraper health: warn after this many consecutive zero-result runs ──────────
+zero_results_warn_threshold: 5
+
 # ── FX API ────────────────────────────────────────────────────────────────────
 fx_api_url: "https://api.frankfurter.app/latest?from=USD&to=EUR"
 

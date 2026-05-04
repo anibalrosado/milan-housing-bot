@@ -36,6 +36,14 @@ CREATE TABLE IF NOT EXISTS listings (
 )
 """
 
+_CREATE_SCRAPER_HEALTH_TABLE = """
+CREATE TABLE IF NOT EXISTS scraper_health (
+    source          TEXT PRIMARY KEY,
+    zero_run_streak INTEGER NOT NULL DEFAULT 0,
+    last_updated    TEXT NOT NULL
+)
+"""
+
 
 class DedupeStore:
     def __init__(self, db_path: str = "listings.db"):
@@ -58,6 +66,7 @@ class DedupeStore:
     def _init_db(self) -> None:
         with self._conn() as conn:
             conn.execute(_CREATE_TABLE)
+            conn.execute(_CREATE_SCRAPER_HEALTH_TABLE)
 
     # ── Step 2: deduplication ─────────────────────────────────────────────────
 
@@ -170,6 +179,42 @@ class DedupeStore:
             )
             after = conn.execute("SELECT COUNT(*) FROM listings").fetchone()[0]
         return after - before
+
+    # ── Scraper health tracking ───────────────────────────────────────────────
+
+    def record_scraper_result(self, source: str, result_count: int) -> int:
+        """
+        Update zero_run_streak for a scraper:
+          - If result_count > 0: reset streak to 0
+          - If result_count == 0: increment streak by 1
+        Returns the current streak after update.
+        """
+        today = date.today().isoformat()
+        with self._conn() as conn:
+            if result_count > 0:
+                conn.execute(
+                    """INSERT INTO scraper_health (source, zero_run_streak, last_updated)
+                       VALUES (?, 0, ?)
+                       ON CONFLICT(source) DO UPDATE SET
+                           zero_run_streak = 0,
+                           last_updated = excluded.last_updated""",
+                    (source, today),
+                )
+                return 0
+            else:
+                conn.execute(
+                    """INSERT INTO scraper_health (source, zero_run_streak, last_updated)
+                       VALUES (?, 1, ?)
+                       ON CONFLICT(source) DO UPDATE SET
+                           zero_run_streak = zero_run_streak + 1,
+                           last_updated = excluded.last_updated""",
+                    (source, today),
+                )
+                row = conn.execute(
+                    "SELECT zero_run_streak FROM scraper_health WHERE source = ?",
+                    (source,),
+                ).fetchone()
+                return row["zero_run_streak"] if row else 1
 
     # ── Step 9.5: geocoding cache ─────────────────────────────────────────────
 

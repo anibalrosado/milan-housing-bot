@@ -35,8 +35,10 @@ from src.notifier import EmailNotifier
 from src.scrapers.spotahome import SpotahomeScraper
 from src.scrapers.housinganywhere import HousingAnywhereScraper
 from src.scrapers.uniplaces import UniplacesScraper
-from src.scrapers.idealista import IdealistaScraper
-from src.scrapers.immobiliare import ImmobiliareScraper
+from src.scrapers.subito import SubitoScraper
+from src.scrapers.bakeca import BakecaScraper
+from src.scrapers.erasmusu import ErasmusuScraper
+from src.scrapers.wunderflats import WunderflatsScraper
 from src.sheets import SheetsWriter
 
 load_dotenv()
@@ -154,14 +156,23 @@ def run() -> None:
             logger.warning("Sheet seeding failed (continuing without seed): %s", exc)
 
     # ── Step 1: Scrape ────────────────────────────────────────────────────────
+    _SCRAPER_MAP = {
+        "spotahome":       SpotahomeScraper,
+        "housinganywhere": HousingAnywhereScraper,
+        "uniplaces":       UniplacesScraper,
+        "subito":          SubitoScraper,
+        "bakeca":          BakecaScraper,
+        "erasmusu":        ErasmusuScraper,
+        "wunderflats":     WunderflatsScraper,
+    }
+
+    sources_cfg = config.get("sources", {})
     scraper_classes = [
-        SpotahomeScraper,
-        HousingAnywhereScraper,
-        UniplacesScraper,
-        IdealistaScraper,
-        ImmobiliareScraper,
+        cls for key, cls in _SCRAPER_MAP.items()
+        if sources_cfg.get(key, {}).get("enabled", True)
     ]
 
+    zero_warn_threshold = config.get("zero_results_warn_threshold", 5)
     this_run_listings: list = []
     for scraper_cls in scraper_classes:
         try:
@@ -169,6 +180,13 @@ def run() -> None:
             results = scraper.scrape()
             logger.info("%s returned %d candidate(s)", scraper.name, len(results))
             this_run_listings.extend(results)
+            streak = dedupe.record_scraper_result(scraper.name, len(results))
+            if streak >= zero_warn_threshold:
+                logger.warning(
+                    "SCRAPER HEALTH: %s has returned 0 results for %d consecutive run(s) "
+                    "— site layout may have changed",
+                    scraper.name, streak,
+                )
         except Exception as exc:
             logger.error("Scraper %s failed: %s", scraper_cls.__name__, exc, exc_info=True)
 
