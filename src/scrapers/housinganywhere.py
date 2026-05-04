@@ -37,6 +37,21 @@ _SEARCH_GROUP  = f"{_BASE_URL}/s/Milan--Italy"
 class HousingAnywhereScraper(BaseScraper):
     name = "HousingAnywhere"
 
+    def _passes_global_filters(self, listing) -> bool:
+        """
+        Override: skip require_known_neighborhood — HousingAnywhere titles use
+        street addresses that rarely match our neighborhood list. The 2.5km
+        distance filter in main.py handles location filtering instead.
+        """
+        cfg = self.config.get("filters", {})
+        from .base import _parse_date
+        if cfg.get("exclude_unavailable_after_moveout", True):
+            avail = _parse_date(listing.available_from)
+            move_out = _parse_date(self.config["search"]["move_out"])
+            if avail and move_out and avail > move_out:
+                return False
+        return True
+
     def scrape(self) -> list[Listing]:
         results = []
         with sync_playwright() as p:
