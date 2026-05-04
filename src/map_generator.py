@@ -34,6 +34,7 @@ _SHEET_COLS = {
     "neighborhood":  "Neighborhood",
     "walk":          "Walk to Cattolica (min)",
     "price":         "Price (€/month)",
+    "per_person":    "Per Person (€/mo)",
     "bedrooms":      "Bedrooms",
     "furnished":     "Furnished",
     "available":     "Available From",
@@ -93,6 +94,7 @@ class MapGenerator:
                 "neighborhood":   neighborhood,
                 "walk":           row.get(_SHEET_COLS["walk"], ""),
                 "price":          price,
+                "per_person":     row.get(_SHEET_COLS["per_person"], ""),
                 "bedrooms":       row.get(_SHEET_COLS["bedrooms"], ""),
                 "furnished":      row.get(_SHEET_COLS["furnished"], ""),
                 "available":      row.get(_SHEET_COLS["available"], ""),
@@ -437,7 +439,8 @@ function renderAll() {{
 // ── Build list item DOM ───────────────────────────────────────────────────────
 function buildListItem(l, idx) {{
   const bar   = l.search_type === 'Group of 5' ? '#3b82f6' : '#ec4899';
-  const price = l.price ? `€${{l.price.toLocaleString()}}/mo` : '—';
+  const price     = l.price      ? `€${{Number(l.price).toLocaleString()}}/mo` : '—';
+  const perPerson = l.per_person ? ` · €${{Number(l.per_person).toLocaleString()}}/pp` : '';
   const walk  = l.walk  ? `🚶 ${{l.walk}} min` : '';
   const beds  = l.bedrooms ? `${{l.bedrooms}}BR` : '';
   const ls    = (l.listing_status || '').toLowerCase();
@@ -454,7 +457,7 @@ function buildListItem(l, idx) {{
     <div class="list-item-bar" style="background:${{bar}}"></div>
     <div class="list-item-body">
       <div class="list-item-title">${{l.title}} ${{statusTag}}</div>
-      <div class="list-item-price">${{price}}</div>
+      <div class="list-item-price">${{price}}<span style="font-weight:400;color:#555;font-size:11px">${{perPerson}}</span></div>
       <div class="list-item-meta">
         ${{beds ? `<span>${{beds}}</span>` : ''}}
         ${{walk ? `<span>${{walk}}</span>` : ''}}
@@ -511,7 +514,8 @@ function openPopup(l) {{
   else if (st === 'contacted') badges.innerHTML += '<span class="pbadge pbadge-contacted">Contacted</span>';
   else                         badges.innerHTML += '<span class="pbadge pbadge-active">Active</span>';
 
-  const price = l.price ? `€${{l.price.toLocaleString()}}/mo` : '—';
+  const price     = l.price      ? `€${{Number(l.price).toLocaleString()}}/mo` : '—';
+  const perPerson = l.per_person ? `€${{Number(l.per_person).toLocaleString()}}/mo per person` : '';
   const walk  = l.walk  ? `${{l.walk}} min walk to Cattolica` : '';
   const beds  = l.bedrooms ? `${{l.bedrooms}} bedroom(s)` : '';
   const furn  = (l.furnished === true  || l.furnished === 'TRUE')  ? 'Furnished'   :
@@ -519,6 +523,7 @@ function openPopup(l) {{
   const avail = l.available || '';
 
   let d = `<strong>Price:</strong> ${{price}}`;
+  if (perPerson) d += ` <span style="font-size:12px;color:#555">(≈ ${{perPerson}})</span>`;
   if (DATE_LABEL) d += ` <span style="font-size:11px;color:#888">(for ${{DATE_LABEL}})</span>`;
   d += '<br>';
   if (DATE_LABEL) d += `<strong>Stay:</strong> ${{DATE_LABEL}}<br>`;

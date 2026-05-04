@@ -38,14 +38,21 @@ class Listing:
         raw = f"{self.source}|{self.url}"
         return hashlib.sha256(raw.encode()).hexdigest()
 
+    def per_person_eur(self) -> Optional[float]:
+        if self.price_eur is None:
+            return None
+        divisor = 5 if self.search_type == "Group of 5" else 2
+        return round(self.price_eur / divisor, 2)
+
     def to_sheet_row(self, date_found: str) -> list:
         """
         Returns a list matching the sheet_columns order in config.yaml:
         Date Found | Source | Search Type | Title | Neighborhood |
-        Walk to Cattolica (min) | Price (€/month) | Bedrooms | Furnished |
+        Walk to Cattolica (min) | Price (€/month) | Per Person (€/mo) | Bedrooms | Furnished |
         Available From | Contact Name | Email | Phone | Listing URL |
         Status | Notes | Listing Status | Removed Date
         """
+        pp = self.per_person_eur()
         return [
             date_found,
             self.source,
@@ -54,6 +61,7 @@ class Listing:
             self.neighborhood,
             self.walk_minutes if self.walk_minutes is not None else "",
             self.price_eur if self.price_eur is not None else "",
+            pp if pp is not None else "",
             self.bedrooms if self.bedrooms is not None else "",
             "Yes" if self.furnished else "No",
             self.available_from or "",
