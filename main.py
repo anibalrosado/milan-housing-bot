@@ -322,5 +322,47 @@ def _git(*args: str) -> None:
     subprocess.run(["git", *args], check=True, capture_output=True)
 
 
+def run_recap() -> None:
+    """Send nightly digest of all active listings — runs independently of the main scrape."""
+    config = load_config()
+    setup_logging(config)
+
+    run_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    logger.info("=== Milan Housing Bot nightly recap: %s ===", run_ts)
+
+    try:
+        creds = load_google_credentials()
+    except Exception as exc:
+        logger.critical("Failed to load Google credentials: %s", exc)
+        sys.exit(1)
+
+    sheet_id = os.environ["GOOGLE_SHEET_ID"]
+    sheets_writer = SheetsWriter(sheet_id, creds, config["sheet_columns"])
+
+    try:
+        all_rows = sheets_writer.read_all_listings()
+        active = [r for r in all_rows if r.get("Listing Status") == "Active"]
+    except Exception as exc:
+        logger.error("Failed to read sheet for recap: %s", exc)
+        sys.exit(1)
+
+    map_url   = os.getenv("RENDER_MAP_URL", "")
+    sheet_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}"
+    notifier  = EmailNotifier(
+        os.environ["GMAIL_USER"],
+        os.environ["GMAIL_APP_PASSWORD"],
+        [e.strip() for e in os.environ["NOTIFY_EMAILS"].split(",")],
+    )
+    try:
+        notifier.send_recap(active, sheet_url, map_url, run_ts)
+    except Exception as exc:
+        logger.error("Recap email failed: %s", exc)
+
+    logger.info("=== Recap complete: %d active listing(s) ===", len(active))
+
+
 if __name__ == "__main__":
-    run()
+    if len(sys.argv) > 1 and sys.argv[1] == "--recap":
+        run_recap()
+    else:
+        run()

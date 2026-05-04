@@ -6,6 +6,29 @@ services:
     schedule: "0 * * * *"   # top of every hour
     buildCommand: pip install -r requirements.txt && PLAYWRIGHT_BROWSERS_PATH=/opt/render/project/src/.browsers playwright install chromium
     startCommand: python main.py
+
+  - type: cron
+    name: milan-housing-bot-recap
+    runtime: python
+    plan: starter
+    schedule: "0 20 * * *"  # 8 PM UTC = 10 PM Milan time (CEST)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py --recap
+    envVars:
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: GOOGLE_SHEET_ID
+        sync: false
+      - key: GMAIL_USER
+        sync: false
+      - key: GMAIL_APP_PASSWORD
+        sync: false
+      - key: NOTIFY_EMAILS
+        sync: false
+      - key: GITHUB_REPO
+        value: "anibalrosado/milan-housing-bot"
+      - key: RENDER_MAP_URL
+        value: "https://anibalrosado.github.io/milan-housing-bot/map.html"
     envVars:
       - key: PLAYWRIGHT_BROWSERS_PATH
         value: /opt/render/project/src/.browsers
