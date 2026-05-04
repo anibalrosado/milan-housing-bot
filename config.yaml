@@ -83,7 +83,7 @@ sources:
   spotahome:       {enabled: true}
   housinganywhere: {enabled: true}
   uniplaces:       {enabled: true}
-  subito:          {enabled: true}
+  subito:          {enabled: false}   # DataDome-blocked (same as Bakeca); re-enable if bypass found
   bakeca:          {enabled: false}   # Cloudflare-blocked; re-enable if bypass found
   erasmusu:        {enabled: false}   # Spotahome reseller — duplicates only
   wunderflats:     {enabled: false}   # Milan not in their market

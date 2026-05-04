@@ -1,8 +1,12 @@
 """
 Subito.it scraper — Italy's largest classifieds platform.
 
-Uses Subito's internal JSON API (hades.subito.it) which works with a mobile
-User-Agent and does not require a browser. Returns Italian-language listings
+CURRENTLY BLOCKED: hades.subito.it is protected by DataDome (returns 403 +
+captcha redirect for all automated requests, same system as Bakeca). Disabled
+in config.yaml. Re-enable if a bypass is found.
+
+Previously used Subito's internal JSON API (hades.subito.it) which works with
+a mobile User-Agent and does not require a browser. Returns Italian-language listings
 as-is (no translation).
 
 API key facts:
