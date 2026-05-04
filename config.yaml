@@ -108,7 +108,7 @@ geocoding:
 
 # ── Map generation ────────────────────────────────────────────────────────────
 map:
-  output_path: "docs/map.html"
+  output_path: "public/map.html"
   # Leaflet tile providers (first is preferred, fallback in order)
   tile_url: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
   tile_attribution: "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors &copy; <a href='https://carto.com/attributions'>CARTO</a>"

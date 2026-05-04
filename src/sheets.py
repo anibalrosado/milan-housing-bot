@@ -57,6 +57,8 @@ class SheetsWriter:
     def read_all_listings(self) -> list[dict]:
         """
         Return all rows as dicts (keyed by header). Excludes Status = "Passed".
+        Uses expected_headers so gspread ignores any extra/empty columns beyond ours.
         """
-        records = self._sheet.get_all_records()
+        expected = list(self._col.keys())
+        records = self._sheet.get_all_records(expected_headers=expected)
         return [r for r in records if r.get("Status") != "Passed"]
