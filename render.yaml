@@ -4,9 +4,11 @@ services:
     runtime: python
     plan: starter
     schedule: "0 * * * *"   # top of every hour
-    buildCommand: pip install -r requirements.txt && playwright install chromium
+    buildCommand: pip install -r requirements.txt && PLAYWRIGHT_BROWSERS_PATH=/opt/render/project/src/.browsers playwright install chromium
     startCommand: python main.py
     envVars:
+      - key: PLAYWRIGHT_BROWSERS_PATH
+        value: /opt/render/project/src/.browsers
       # Paste the full service-account JSON as a single-line string
       - key: GOOGLE_SERVICE_ACCOUNT_JSON
         sync: false
