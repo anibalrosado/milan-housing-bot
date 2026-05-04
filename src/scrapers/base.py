@@ -62,7 +62,7 @@ class Listing:
         Returns a list matching the sheet_columns order in config.yaml:
         Date Found | Source | Search Type | Title | Neighborhood |
         Walk to Cattolica (min) | Price ($/month) | Per Person ($/mo) | Bedrooms | Furnished |
-        Available From | Contact Name | Email | Phone | Listing URL |
+        Available From | Listing URL |
         Status | Notes | Listing Status | Removed Date
         """
         usd = self.price_usd(eur_to_usd_rate)
@@ -79,9 +79,6 @@ class Listing:
             self.bedrooms if self.bedrooms is not None else "",
             "Yes" if self.furnished else "No",
             self.available_from or "",
-            self.contact_name or "",
-            self.email or "",
-            self.phone or "",
             self.url,
             "New",       # Status (manual dropdown — starts as New)
             self.notes,
