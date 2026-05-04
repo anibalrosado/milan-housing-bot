@@ -175,8 +175,12 @@ def run() -> None:
     logger.info("%d new listing(s) after deduplication", len(new_listings))
 
     # ── Step 3: Geocode new listings ──────────────────────────────────────────
-    # (Step 9.5 fills in actual geocoding; geocoder currently returns centroids)
     for listing in new_listings:
+        if listing.neighborhood == "Milan":
+            # No target neighborhood detected — centroid fallback only, skip Nominatim
+            listing.lat = config["cattolica_lat"]
+            listing.lng = config["cattolica_lng"]
+            continue
         address = getattr(listing, "address", None) or listing.neighborhood
         listing.lat, listing.lng = geocoder.geocode(
             listing.listing_hash(), address, listing.neighborhood

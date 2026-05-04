@@ -76,7 +76,7 @@ removed_miss_threshold: 3
 # ── Geocoding ────────────────────────────────────────────────────────────────
 geocoding:
   # Nominatim rate limit: max 1 request/second
-  nominatim_user_agent: "milan-housing-bot/1.0 (contact: your@email.com)"
+  nominatim_user_agent: "milan-housing-bot/1.0 (contact: anibal@townsquaredigital.com)"
   nominatim_url: "https://nominatim.openstreetmap.org/search"
   # Set USE_GOOGLE_GEOCODING=true in env to use Google Maps Geocoding API instead
   request_delay_seconds: 1.1
