@@ -40,6 +40,11 @@ neighborhoods:
   - Ticinese
   - Darsena
   - Naviglio Grande
+  - Navigli
+  - Bocconi
+  - Cadorna
+  - Corso Italia
+  - Porta Genova
 
 # ── Walk time to Università Cattolica (minutes, fallback approximations) ───────
 cattolica_address: "Largo Gemelli 1, Milan, Italy"
@@ -60,6 +65,11 @@ walk_times:
   "Ticinese": 10
   "Darsena": 14
   "Naviglio Grande": 14
+  "Navigli": 16
+  "Bocconi": 12
+  "Cadorna": 12
+  "Corso Italia": 14
+  "Porta Genova": 18
 
 # ── Neighborhood centroid coordinates (geocoding fallback) ─────────────────────
 neighborhood_centroids:
@@ -77,6 +87,11 @@ neighborhood_centroids:
   "Ticinese":        {lat: 45.4558, lng: 9.1812}
   "Darsena":         {lat: 45.4524, lng: 9.1762}
   "Naviglio Grande": {lat: 45.4535, lng: 9.1730}
+  "Navigli":         {lat: 45.4490, lng: 9.1780}
+  "Bocconi":         {lat: 45.4535, lng: 9.1910}
+  "Cadorna":         {lat: 45.4668, lng: 9.1784}
+  "Corso Italia":    {lat: 45.4570, lng: 9.1867}
+  "Porta Genova":    {lat: 45.4510, lng: 9.1705}
 
 # ── Scraper sources (set enabled: false to pause without deleting) ─────────────
 sources:
