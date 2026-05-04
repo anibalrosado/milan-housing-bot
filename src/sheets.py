@@ -58,5 +58,6 @@ class SheetsWriter:
         """
         Return all rows as dicts (keyed by header). Excludes Status = "Passed".
         """
-        records = self._sheet.get_all_records()
+        expected = [h for h in self._col.keys()]
+        records = self._sheet.get_all_records(expected_headers=expected)
         return [r for r in records if r.get("Status") != "Passed"]
