@@ -14,7 +14,7 @@ services:
     name: milan-housing-bot
     runtime: python
     plan: starter
-    schedule: "0 12 * * *"   # once daily at 12 noon UTC (8 AM EDT)
+    schedule: "0 17 * * *"   # once daily at 12 noon EST (17:00 UTC)
     buildCommand: pip install -r requirements.txt && PLAYWRIGHT_BROWSERS_PATH=/opt/render/project/src/.browsers playwright install chromium
     startCommand: python main.py
     envVars:
